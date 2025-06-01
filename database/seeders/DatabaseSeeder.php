@@ -15,9 +15,21 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        \App\Models\Group::factory(3)->create()->each(function ($group) {
+            \App\Models\User::factory(3)->create([
+                'group_id' => $group->id,
+                'role' => 'guest',
+            ])->each(function ($user) use ($group) {
+                \App\Models\Expense::factory(10)->create([
+                    'user_id' => $user->id,
+                    'group_id' => $group->id,
+                ]);
+
+                \App\Models\Income::factory(5)->create([
+                    'user_id' => $user->id,
+                    'group_id' => $group->id,
+                ]);
+            });
+        });
     }
 }
