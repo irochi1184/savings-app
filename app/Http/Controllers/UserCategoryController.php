@@ -48,5 +48,22 @@ class UserCategoryController extends Controller
         return redirect()->back()->with('success', 'カテゴリを追加しました。');
     }
 
-    // 今後: 並び替え・削除・更新も追加予定
+    public function index()
+    {
+        $categories = UserCategory::where('user_id', Auth::id())
+            ->where('is_deleted', false)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('categories.index', compact('categories'));
+    }
+
+    public function destroy($id)
+    {
+        $category = UserCategory::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $category->update(['is_deleted' => true]);
+
+        return redirect()->back()->with('success', 'カテゴリを削除しました。');
+    }
+
 }

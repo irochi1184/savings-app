@@ -26,10 +26,10 @@ class UserCategory extends Model
     {
         return [
             ['name' => '食費',     'icon' => 'fa-utensils'],       // 飲食
-            ['name' => '日用品',   'icon' => 'fa-pump-soap'],      // 石鹸や生活用品
+            ['name' => '日用品',   'icon' => 'fa-soap'],      // 石鹸や生活用品
             ['name' => '交通費',   'icon' => 'fa-bus'],            // 交通
             ['name' => '光熱費',   'icon' => 'fa-bolt'],           // 電気やガス
-            ['name' => '家賃',     'icon' => 'fa-house'],          // 家
+            ['name' => '家賃',     'icon' => 'fa-home'],          // 家
             ['name' => '通信費',   'icon' => 'fa-wifi'],           // ネットや通信
             ['name' => '娯楽費',     'icon' => 'fa-gamepad'],        // ゲームなどの娯楽
             ['name' => '給与',     'icon' => 'fa-coins'],          // お金

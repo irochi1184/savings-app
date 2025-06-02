@@ -62,11 +62,10 @@
                 @php
                     $userId = auth()->id();
 
-                    $categories = \App\Models\UserCategory::where(function ($query) use ($userId) {
-                        $query->orWhere('user_id', $userId);
-                    })
-                    ->orderBy('sort_order')
-                    ->get();
+                    $categories = \App\Models\UserCategory::where('is_deleted', false)
+                        ->where('user_id', $userId)
+                        ->orderBy('sort_order')
+                        ->get();
                 @endphp
 
                 @foreach($categories as $cat)
@@ -113,7 +112,15 @@
         <label class="block mb-2">アイコンを選択</label>
         <div class="grid grid-cols-6 gap-2 max-h-40 overflow-y-auto mb-4">
             @php
-                $icons = ['fa-utensils','fa-soap','fa-bus','fa-bolt','fa-home','fa-coins','fa-gift','fa-car','fa-heart','fa-briefcase','fa-dog','fa-tshirt','fa-book','fa-gamepad','fa-notes-medical','fa-mug-hot','fa-apple-alt','fa-shopping-cart','fa-tv','fa-wifi','fa-tooth','fa-baby','fa-hamburger','fa-biking','fa-chair','fa-fish','fa-leaf','fa-camera','fa-tree','fa-money-bill'];
+                $icons = [
+                    'fa-utensils','fa-soap','fa-bus','fa-bolt','fa-home','fa-wifi','fa-gamepad','fa-coins','fa-briefcase','fa-hand-holding-usd','fa-gift','fa-car','fa-heart',
+                    'fa-dog','fa-tshirt','fa-book','fa-notes-medical','fa-mug-hot',
+                    'fa-apple-alt','fa-shopping-cart','fa-tv','fa-tooth','fa-baby','fa-hamburger',
+                    'fa-biking','fa-chair','fa-fish','fa-leaf','fa-camera','fa-tree','fa-money-bill','fa-couch',
+                    'fa-plane','fa-subway','fa-mobile-alt','fa-plug','fa-capsules','fa-paint-roller','fa-seedling',
+                    'fa-laptop','fa-glass-cheers','fa-clipboard-list','fa-calendar-alt','fa-flag','fa-shower',
+                    'fa-paw','fa-socks','fa-umbrella','fa-mountain','fa-bed','fa-balance-scale'
+                ];
             @endphp
             @foreach($icons as $icon)
                 <label class="cursor-pointer">

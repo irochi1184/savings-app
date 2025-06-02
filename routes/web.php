@@ -23,10 +23,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/record', [RecordController::class, 'create'])->name('record.create');
     Route::post('/record', [RecordController::class, 'store'])->name('record.store');
 
+    Route::get('/categories', [UserCategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories', [UserCategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{id}', [UserCategoryController::class, 'destroy'])->name('categories.destroy');
-    Route::put('/categories/{id}', [UserCategoryController::class, 'update'])->name('categories.update');
-    Route::patch('/categories/reorder', [UserCategoryController::class, 'reorder'])->name('categories.reorder');
 });
 
 
