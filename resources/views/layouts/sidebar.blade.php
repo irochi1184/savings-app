@@ -8,6 +8,7 @@
 
     <a href="{{ route('dashboard') }}" class="menu-button"><i class="fas fa-home"></i> <span>ダッシュボード</span></a>
     <a href="{{ route('record.create') }}" class="menu-button"><i class="fas fa-pen"></i> <span>収入・支出を記録</span></a>
+    <a href="{{ route('categories.index') }}" class="menu-button"><i class="fas fa-folder-open"></i> <span>カテゴリー設定</span></a>
     <a href="{{ route('record.create') }}" class="menu-button"><i class="fas fa-bell"></i> <span>通知設定</span></a>
     <a href="{{ route('record.create') }}" class="menu-button"><i class="fas fa-user"></i> <span>ログイン設定</span></a>
     <a href="{{ route('record.create') }}" class="menu-button"><i class="fas fa-palette"></i> <span>デザイン設定</span></a>

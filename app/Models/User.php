@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\UserCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -47,6 +48,22 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $defaults = UserCategory::getDefaultCategories();
+
+            foreach ($defaults as $index => $cat) {
+                UserCategory::create([
+                    'user_id'    => $user->id,
+                    'name'       => $cat['name'],
+                    'icon'       => $cat['icon'],
+                    'sort_order' => $index,
+                    'is_deleted' => false,
+                ]);
+            }
+        });
+    }
 
     public function expenses()
     {

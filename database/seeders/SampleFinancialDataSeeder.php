@@ -15,16 +15,16 @@ class SampleFinancialDataSeeder extends Seeder
     {
         // テスト用ユーザーの作成
         $user = User::firstOrCreate(
-            ['email' => 'test@example.com'],
+            ['email' => 'ken.office.arita@gmail.com'],
             [
-                'name' => 'テストユーザー',
+                'name' => 'ありけん',
                 'password' => Hash::make('password'),
                 'role' => 'host'
             ]
         );
 
         // 支出と収入のカテゴリ
-        $expenseCategories = ['食費', '日用品', '交通費', '交際費', '趣味・娯楽'];
+        $expenseCategories = ['食費', '日用品', '交通費', '光熱費', '家賃', '通信費'];
         $incomeCategories = ['給与', '副収入'];
 
         // 2025年1月〜5月までの日付でループ

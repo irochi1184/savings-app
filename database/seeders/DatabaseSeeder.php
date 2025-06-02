@@ -15,17 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => bcrypt('password'),
-                'remember_token' => Str::random(10),
-            ]
-        );
-
-        $this->call(SampleFinancialDataSeeder::class);
+        $this->call([
+            SampleFinancialDataSeeder::class,
+        ]);
     }
 }
