@@ -190,11 +190,12 @@ return [
     'attributes' => [
         'address' => '住所',
         'age' => '歳',
-        'amount' => '額',
+        'amount' => '金額',
         'area' => 'エリア',
         'available' => '利用可能',
         'birthday' => '誕生日',
         'body' => '本文',
+        'category' => 'カテゴリー',
         'city' => '市',
         'content' => 'コンテンツ',
         'country' => '国',

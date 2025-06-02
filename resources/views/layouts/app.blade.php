@@ -12,7 +12,6 @@
 </head>
 <body class="font-sans antialiased bg-gray-100">
     @include('layouts.sidebar')
-    @include('layouts.top-tabs')
 
     <div class="main-content" id="mainContent">
         @yield('content')
