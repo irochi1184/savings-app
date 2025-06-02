@@ -21,7 +21,7 @@
         background: none; border: none; cursor: pointer;
         font-size: 16px; color: #333;
     }
-    .sidebar button.menu-button {
+    /* .sidebar button.menu-button {
         display: flex; align-items: center;
         width: 100%; padding: 10px 0; color: #333;
         background: none; border: none; font-weight: 500;
@@ -43,7 +43,53 @@
     .sidebar button.menu-button:hover {
         background-color: rgba(255, 255, 255, 0.4);
         border-radius: 3px;
-    }
+    } */
+
+    /* 共通スタイル（button も a も対応） */
+.sidebar .menu-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0;
+    color: #333;
+    background: none;
+    border: none;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-decoration: none; /* aタグ用 */
+}
+
+/* アイコン */
+.sidebar .menu-button i {
+    width: 20px;
+    text-align: center;
+    margin-left: 2px;
+}
+
+/* テキスト */
+.sidebar .menu-button span {
+    margin-left: 12px;
+}
+
+/* 折りたたみ時はテキスト非表示 */
+.sidebar.collapsed .menu-button span {
+    display: none;
+}
+
+/* 折りたたみ時のアイコン中央寄せ */
+.sidebar.collapsed .menu-button {
+    justify-content: center;
+    padding: 14px 0;
+}
+
+/* ホバー時 */
+.sidebar .menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+}
+
     .top-tabs {
         position: fixed; left: 220px; right: 0; top: 0;
         height: 50px; background-color: #e7ecec;
