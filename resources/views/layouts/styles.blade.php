@@ -114,4 +114,13 @@
     .main-content.collapsed {
         margin-left: 50px;
     }
+
+    .icon-option {
+        transition: all 0.2s ease;
+    }
+    .icon-option.selected {
+        border: 2px solid #3b82f6; /* 青色 */
+        background-color: #e0f2fe;
+    }
+
 </style>
