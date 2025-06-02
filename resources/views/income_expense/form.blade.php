@@ -20,11 +20,11 @@
 <form method="POST" action="{{ route('record.store') }}">
     @csrf
 
-    <input type="hidden" name="type" id="recordType" value="expense">
-
     <div id="entryContainer" class="max-w-4xl mx-auto mt-8 bg-white rounded shadow p-6 transition-all duration-300">
 
         <!-- トグル切替 -->
+        {{-- hidden type に old() を反映 --}}
+        <input type="hidden" name="type" id="recordType" value="{{ old('type', 'expense') }}">
         <div class="flex justify-center mb-6">
             <div class="inline-flex rounded-md shadow-sm border overflow-hidden" role="group">
                 <button type="button" id="expenseBtn"
@@ -106,15 +106,30 @@
             if (mode === "income") {
                 container.style.backgroundColor = "#4bb9ae25";
                 typeInput.value = "income";
+
+                // トグルの見た目変更
+                incomeBtn.classList.remove("bg-gray-300");
+                incomeBtn.classList.add("bg-teal-500", "text-white");
+                expenseBtn.classList.remove("bg-red-400");
+                expenseBtn.classList.add("bg-gray-300", "text-gray-700");
+
             } else {
                 container.style.backgroundColor = "#e9c9d073";
                 typeInput.value = "expense";
+
+                expenseBtn.classList.remove("bg-gray-300");
+                expenseBtn.classList.add("bg-red-400", "text-white");
+                incomeBtn.classList.remove("bg-teal-500");
+                incomeBtn.classList.add("bg-gray-300", "text-gray-700");
             }
         }
 
+        // クリックイベント
         incomeBtn.addEventListener("click", () => setMode("income"));
         expenseBtn.addEventListener("click", () => setMode("expense"));
-        setMode("expense");
+
+        // old('type')に応じた初期化
+        setMode("{{ old('type', 'expense') }}");
 
         // カテゴリ選択
         const categoryButtons = document.querySelectorAll(".category-btn");
