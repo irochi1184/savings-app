@@ -33,6 +33,16 @@ class DashboardController extends Controller
         // 合体して日付でソート
         $transactions = $expenses->concat($incomes)->sortByDesc('date')->take(30);
 
-        return view('dashboard', compact('monthlyExpenses', 'transactions'));
+        $userId = Auth::id();
+        $currentMonth = now()->format('Y-m');
+
+        // カテゴリ別支出合計（今月のみ）
+        $categoryExpenses = Expense::select('category', DB::raw('SUM(amount) as total'))
+            ->where('user_id', $userId)
+            ->where('spent_at', 'like', $currentMonth . '%')
+            ->groupBy('category')
+            ->pluck('total', 'category');
+
+        return view('dashboard', compact('categoryExpenses', 'monthlyExpenses', 'transactions'));
     }
 }
