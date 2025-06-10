@@ -3,9 +3,6 @@
 @section('content')
 <div class="container py-4" style="font-family: 'Helvetica Neue', sans-serif; max-width: 1000px; margin: 0 auto;">
 
-    <h2 class="mb-4 text-center" style="font-weight: 600; color: #333;">月別支出の推移</h2>
-    <canvas id="monthlyChart" height="100" class="mb-5"></canvas>
-
     <style>
     .design10 {
         width: 100%;
@@ -50,12 +47,30 @@
     .main-content.collapsed {
         margin-left: 50px;
     }
+
+    .tab-button.active {
+        font-weight: bold;
+        border-bottom: 2px solid #333;
+    }
+    .hidden { display: none; }
+
 </style>
 
 <div class="top-tabs" id="topTabs">
-    <button>棒グラフ</button>
-    <button>円グラフ</button>
-    <button>TEST</button>
+    <button class="tab-button active" data-tab="pie">カテゴリー別割合</button>
+    <button class="tab-button" data-tab="bar">年間レポート</button>
+</div>
+
+<!-- 今月のカテゴリ別支出割合 -->
+<div id="pieTab" class="tab-content">
+    <h2 class="mb-4 text-center" style="font-weight: 600; color: #333;">今月のカテゴリ別支出割合</h2>
+    <canvas id="categoryPieChart" height="100" class="mb-5"></canvas>
+</div>
+
+<!-- 月別支出の推移 -->
+<div id="barTab" class="tab-content hidden">
+    <h2 class="mb-4 text-center" style="font-weight: 600; color: #333;">月別支出の推移</h2>
+    <canvas id="monthlyChart" height="100" class="mb-5"></canvas>
 </div>
 
 <h2 class="mt-5 mb-3 text-center" style="font-weight: 600; color: #333;">収支一覧（直近30件）</h2>
@@ -97,6 +112,7 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0 "></script>
 <script>
     const ctx = document.getElementById('monthlyChart').getContext('2d');
 
@@ -119,10 +135,7 @@
                 data: data,
                 fill: false,
                 borderColor: 'rgba(0, 150, 150, 0.8)',
-                // backgroundColor: 'rgba(139, 0, 0, 1)',
-                // tension: 0.2,
                 pointRadius: 4,
-                // pointBackgroundColor: 'rgba(139, 0, 0, 1)'
             }]
         },
         options: {
@@ -131,7 +144,7 @@
                 legend: {
                     display: true,
                     labels: {
-                        // color: '#333'
+                        color: '#333'
                     }
                 }
             },
@@ -193,5 +206,65 @@
         };
     });
 </script>
+
+<script>
+document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+        // 全ボタンのactiveクラスを外す
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        // すべてのタブを非表示にし、選択されたタブだけ表示
+        const selected = button.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+        document.getElementById(selected + 'Tab').classList.remove('hidden');
+    });
+});
+
+</script>
+
+<script>
+    // 円グラフ（カテゴリ別）
+    const pieCtx = document.getElementById('categoryPieChart').getContext('2d');
+    const categoryLabels = {!! json_encode($categoryExpenses->keys()) !!};
+    const categoryData = {!! json_encode($categoryExpenses->values()) !!};
+
+    new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: 'カテゴリ別支出',
+                data: categoryData,
+                backgroundColor: categoryLabels.map(() =>
+                    `rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.6)`
+                ),
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        
+        options: {
+            plugins: {
+                tooltip: {
+                    enabled: false
+                },
+                datalabels: {
+                    color:"#fff",
+                    font: {
+                        size: 30
+                    },
+                    formatter: function( value, context ) {
+                        return value.toString() + '円';
+                    }
+                }
+            }
+        },
+        plugins: [
+            ChartDataLabels,
+        ],
+    });
+</script>
+
 
 @endsection
