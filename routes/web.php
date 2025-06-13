@@ -19,6 +19,7 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+    Route::get('/dashboard/category-summary', [DashboardController::class, 'categorySummary'])->name('dashboard.category-summary');
 
     Route::get('/record', [RecordController::class, 'create'])->name('record.create');
     Route::post('/record', [RecordController::class, 'store'])->name('record.store');
@@ -27,7 +28,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/categories', [UserCategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{id}', [UserCategoryController::class, 'destroy'])->name('categories.destroy');
 });
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

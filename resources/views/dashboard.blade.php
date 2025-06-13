@@ -52,7 +52,16 @@
         font-weight: bold;
         border-bottom: 2px solid #333;
     }
-    .hidden { display: none; }
+    .hidden { 
+        display: none;
+    }
+
+    .sizing {
+        max-height: 500px;
+        align-content: center;
+        display: flex;
+        justify-content: center;
+    }
 
 </style>
 
@@ -63,8 +72,21 @@
 
 <!-- 今月のカテゴリ別支出割合 -->
 <div id="pieTab" class="tab-content">
-    <h2 class="mb-4 text-center" style="font-weight: 600; color: #333;">今月のカテゴリ別支出割合</h2>
-    <canvas id="categoryPieChart" height="100" class="mb-5"></canvas>
+    <div class="flex items-center justify-center gap-4 mb-4">
+        <select id="yearSelect" class="border p-1 rounded">
+            @for ($year = 2020; $year <= 2040; $year++)
+                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}年</option>
+            @endfor
+        </select>
+
+        <select id="monthSelect" class="border p-1 rounded">
+            @for ($i = 1; $i <= 12; $i++)
+                <option value="{{ $i }}" {{ $i == $currentMonth ? 'selected' : '' }}>{{ $i }}月</option>
+            @endfor
+        </select>
+    </div>
+    <h2 class="mb-4 text-center" style="font-weight: 600; color: #333;">カテゴリ別支出割合</h2>
+    <canvas id="categoryPieChart" class="mb-5 sizing"></canvas>
 </div>
 
 <!-- 月別支出の推移 -->
@@ -113,6 +135,8 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0 "></script>
+
+{{-- 月毎収支レポート --}}
 <script>
     const ctx = document.getElementById('monthlyChart').getContext('2d');
 
@@ -170,6 +194,8 @@
         }
     });
 </script>
+
+{{-- サイドバー切り替え --}}
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const sidebar = document.getElementById('sidebar');
@@ -207,6 +233,7 @@
     });
 </script>
 
+{{-- 上部タブバー切り替え --}}
 <script>
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
@@ -220,51 +247,88 @@ document.querySelectorAll('.tab-button').forEach(button => {
         document.getElementById(selected + 'Tab').classList.remove('hidden');
     });
 });
-
 </script>
 
 <script>
-    // 円グラフ（カテゴリ別）
-    const pieCtx = document.getElementById('categoryPieChart').getContext('2d');
-    const categoryLabels = {!! json_encode($categoryExpenses->keys()) !!};
-    const categoryData = {!! json_encode($categoryExpenses->values()) !!};
+let categoryChart;
 
-    new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-            labels: categoryLabels,
-            datasets: [{
-                label: 'カテゴリ別支出',
-                data: categoryData,
-                backgroundColor: categoryLabels.map(() =>
-                    `rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.6)`
-                ),
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        
-        options: {
-            plugins: {
-                tooltip: {
-                    enabled: false
-                },
-                datalabels: {
-                    color:"#fff",
-                    font: {
-                        size: 30
-                    },
-                    formatter: function( value, context ) {
-                        return value.toString() + '円';
-                    }
-                }
+function fetchCategoryDataAndRenderChart(year, month) {
+    fetch(`/dashboard/category-summary?year=${year}&month=${month}`)
+        .then(res => res.json())
+        .then(json => {
+            const ctx = document.getElementById('categoryPieChart').getContext('2d');
+
+            if (categoryChart) {
+                categoryChart.destroy();
             }
-        },
-        plugins: [
-            ChartDataLabels,
-        ],
-    });
-</script>
 
+            // カスタムプラグイン：中央に合計金額を描画
+            const centerTextPlugin = {
+                id: 'centerText',
+                beforeDraw(chart) {
+                    const { width, height, ctx } = chart;
+                    ctx.restore();
+                    const fontSize = (height / 350);
+                    ctx.font = `${fontSize}em sans-serif`;
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#333';
+
+                    const text = `合計 ¥${json.total.toLocaleString()}`;
+                    const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                    const textY = height / 1.9;
+
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
+                }
+            };
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: json.labels,
+                    datasets: [{
+                        data: json.data,
+                        backgroundColor: json.labels.map(() =>
+                            `rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.6)`
+                        ),
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        tooltip: { enabled: false },
+                        datalabels: {
+                            color: "#555",
+                            font: { size: 18 },
+                            formatter: (value) => `${value}円`
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels, centerTextPlugin]
+            });
+        });
+}
+
+// 初期表示
+document.addEventListener("DOMContentLoaded", () => {
+    const year = document.getElementById("yearSelect").value;
+    const month = document.getElementById("monthSelect").value;
+    fetchCategoryDataAndRenderChart(year, month);
+});
+
+// 選択変更で再描画
+document.getElementById("yearSelect").addEventListener("change", () => {
+    const year = document.getElementById("yearSelect").value;
+    const month = document.getElementById("monthSelect").value;
+    fetchCategoryDataAndRenderChart(year, month);
+});
+
+document.getElementById("monthSelect").addEventListener("change", () => {
+    const year = document.getElementById("yearSelect").value;
+    const month = document.getElementById("monthSelect").value;
+    fetchCategoryDataAndRenderChart(year, month);
+});
+</script>
 
 @endsection

@@ -34,15 +34,46 @@ class DashboardController extends Controller
         $transactions = $expenses->concat($incomes)->sortByDesc('date')->take(30);
 
         $userId = Auth::id();
-        $currentMonth = now()->format('Y-m');
+        $currentYear = now()->year;
+        $currentMonth = now()->month;
 
-        // カテゴリ別支出合計（今月のみ）
-        $categoryExpenses = Expense::select('category', DB::raw('SUM(amount) as total'))
-            ->where('user_id', $userId)
-            ->where('spent_at', 'like', $currentMonth . '%')
-            ->groupBy('category')
-            ->pluck('total', 'category');
+        // 選択年月によるカテゴリ別支出
+        $availableYears = Expense::selectRaw('YEAR(spent_at) as year')
+            ->where('user_id', Auth::id())
+            ->distinct()
+            ->pluck('year');
 
-        return view('dashboard', compact('categoryExpenses', 'monthlyExpenses', 'transactions'));
+        return view('dashboard', compact(
+            'monthlyExpenses', 
+            'transactions',
+            'availableYears',
+            'currentYear',
+            'currentMonth',
+        ));
+    }
+
+    public function categorySummary(Request $request)
+    {
+        $year = $request->year;
+        $month = $request->month;
+
+        $userId = Auth::id();
+
+        $expenses = Expense::where('user_id', $userId)
+            ->whereYear('spent_at', $year)
+            ->whereMonth('spent_at', $month)
+            ->get();
+
+        $categoryTotals = $expenses->groupBy('category')->map(function ($group) {
+            return $group->sum('amount');
+        });
+
+        $totalAmount = $categoryTotals->sum();
+
+        return response()->json([
+            'labels' => $categoryTotals->keys()->values(),
+            'data' => $categoryTotals->values(),
+            'total' => $totalAmount
+        ]);
     }
 }
