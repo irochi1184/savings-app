@@ -3,7 +3,7 @@
 @section('content')
 <div class="container py-4" style="font-family: 'Helvetica Neue', sans-serif; max-width: 1000px; margin: 0 auto;">
 
-    <style>
+<style>
     .design10 {
         width: 100%;
         text-align: center;
@@ -72,19 +72,33 @@
 
 <!-- 今月のカテゴリ別支出割合 -->
 <div id="pieTab" class="tab-content">
-    <div class="flex items-center justify-center gap-4 mb-4">
-        <select id="yearSelect" class="border p-1 rounded">
-            @for ($year = 2020; $year <= 2040; $year++)
-                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}年</option>
-            @endfor
-        </select>
+    <div class="flex items-center justify-center gap-4 mb-6">
+        <div class="relative">
+            <select id="yearSelect"
+                class="appearance-none bg-white text-gray-700 font-medium border border-gray-300 rounded-xl shadow-sm py-2 px-4 pr-8 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition">
+                @for ($year = 2020; $year <= 2040; $year++)
+                    <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}年</option>
+                @endfor
+            </select>
+        </div>
 
-        <select id="monthSelect" class="border p-1 rounded">
+        {{-- 月タブ（1〜12月） --}}
+        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-6 lg:grid-cols-12 gap-2 w-full max-w-3xl">
             @for ($i = 1; $i <= 12; $i++)
-                <option value="{{ $i }}" {{ $i == $currentMonth ? 'selected' : '' }}>{{ $i }}月</option>
+                <button
+                    class="month-tab w-full text-center px-3 py-2 rounded-lg border text-sm font-medium transition 
+                        border-gray-300 bg-white text-gray-700 hover:bg-teal-50 hover:border-teal-400 
+                        focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    data-month="{{ $i }}"
+                    type="button"
+                >
+                    {{ $i }}月
+                </button>
             @endfor
-        </select>
+        </div>
+        <input type="hidden" id="monthSelect" value="{{ $currentMonth }}">
     </div>
+
     <h2 class="mb-4 text-center" style="font-weight: 600; color: #333;">カテゴリ別支出割合</h2>
     <canvas id="categoryPieChart" class="mb-5 sizing"></canvas>
 </div>
@@ -245,6 +259,37 @@ document.querySelectorAll('.tab-button').forEach(button => {
         const selected = button.dataset.tab;
         document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
         document.getElementById(selected + 'Tab').classList.remove('hidden');
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const monthTabs = document.querySelectorAll('.month-tab');
+    const monthInput = document.getElementById('monthSelect');
+
+    function setActiveMonth(month) {
+        monthTabs.forEach(tab => {
+            if (parseInt(tab.dataset.month) === parseInt(month)) {
+                tab.classList.add('bg-teal-100', 'border-teal-400', 'text-teal-700', 'font-bold');
+            } else {
+                tab.classList.remove('bg-teal-100', 'border-teal-400', 'text-teal-700', 'font-bold');
+            }
+        });
+        monthInput.value = month;
+        const year = document.getElementById('yearSelect').value;
+        fetchCategoryDataAndRenderChart(year, month);
+    }
+
+    // 初期表示の月をアクティブに
+    setActiveMonth(monthInput.value);
+
+    // イベント設定
+    monthTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const selectedMonth = tab.dataset.month;
+            setActiveMonth(selectedMonth);
+        });
     });
 });
 </script>
