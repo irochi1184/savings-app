@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\UserCategory;
 
 class DashboardController extends Controller
 {
@@ -70,10 +71,14 @@ class DashboardController extends Controller
 
         $totalAmount = $categoryTotals->sum();
 
+        $categories = UserCategory::where('user_id', Auth::id())->get();
+        $categoryColors = $categories->pluck('color', 'name'); // name => color
+
         return response()->json([
             'labels' => $categoryTotals->keys()->values(),
             'data' => $categoryTotals->values(),
-            'total' => $totalAmount
+            'total' => $totalAmount,
+            'colors' => $categoryTotals->keys()->map(fn($k) => $categoryColors[$k] ?? '#cccccc')->values(),
         ]);
     }
 }

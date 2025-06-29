@@ -15,6 +15,7 @@ class UserCategory extends Model
         'icon',
         'sort_order',
         'is_deleted',
+        'color',
     ];
 
     public function user()

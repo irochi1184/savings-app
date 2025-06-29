@@ -320,7 +320,7 @@ function fetchCategoryDataAndRenderChart(year, month) {
 
                     const text = `合計 ¥${json.total.toLocaleString()}`;
                     const textX = Math.round((width - ctx.measureText(text).width) / 2);
-                    const textY = height / 1.9;
+                    const textY = height / 2;
 
                     ctx.fillText(text, textX, textY);
                     ctx.save();
@@ -333,20 +333,26 @@ function fetchCategoryDataAndRenderChart(year, month) {
                     labels: json.labels,
                     datasets: [{
                         data: json.data,
-                        backgroundColor: json.labels.map(() =>
-                            `rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.6)`
-                        ),
+                        backgroundColor: json.colors,
                         borderColor: '#fff',
                         borderWidth: 1
                     }]
                 },
                 options: {
                     plugins: {
+                        legend: {
+                            display: false
+                        },
                         tooltip: { enabled: false },
                         datalabels: {
                             color: "#555",
-                            font: { size: 18 },
-                            formatter: (value) => `${value}円`
+                            font: { size: 14 },
+                            formatter: function(value, context) {
+                                const label = context.chart.data.labels[context.dataIndex];
+                                return `${label}\n${value.toLocaleString()}円`;
+                            },
+                            align: 'center',
+                            anchor: 'center'
                         }
                     }
                 },
