@@ -20,23 +20,18 @@
 <!-- カテゴリ一覧 -->
 <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-4 mb-6">
     @foreach($categories as $category)
-        <div class="border p-4 rounded text-center relative">
+        <div class="border p-4 rounded text-center relative" style="background-color: {{ $category->color ?? '#f4f4f4' }}">
             <i class="fas {{ $category->icon }} text-2xl mb-2"></i>
             <div>{{ $category->name }}</div>
-            <form action="{{ route('categories.destroy', $category->id) }}" method="POST" 
-                  class="absolute top-1 right-1"
-                  onsubmit="return confirm('本当に「{{ $category->name }}」を削除してもよろしいですか？');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="text-red-600 hover:text-red-800">
-                    <i class="fas fa-trash"></i>
-                </button>
+            <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="absolute top-1 right-1">
+                @csrf @method('DELETE')
+                <button type="submit" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
             </form>
         </div>
     @endforeach
 </div>
 
-<!-- 追加フォーム -->
+<!-- カテゴリー追加フォーム -->
 <h3 class="text-lg font-semibold mb-2">カテゴリーを追加</h3>
 <form method="POST" action="{{ route('categories.store') }}">
     @csrf
@@ -47,23 +42,24 @@
     <div class="mb-4">
         <label class="block mb-2">アイコンを選択</label>
         <div class="grid grid-cols-6 sm:grid-cols-9 md:grid-cols-12 gap-2 max-h-40 overflow-y-auto">
-            @php
-                $icons = [
-                    'fa-utensils','fa-soap','fa-bus','fa-bolt','fa-home','fa-wifi','fa-gamepad','fa-coins','fa-briefcase','fa-hand-holding-usd','fa-gift','fa-car','fa-heart',
-                    'fa-dog','fa-tshirt','fa-book','fa-notes-medical','fa-mug-hot',
-                    'fa-apple-alt','fa-shopping-cart','fa-tv','fa-tooth','fa-baby','fa-hamburger',
-                    'fa-biking','fa-chair','fa-fish','fa-leaf','fa-camera','fa-tree','fa-money-bill','fa-couch',
-                    'fa-plane','fa-subway','fa-mobile-alt','fa-plug','fa-capsules','fa-paint-roller','fa-seedling',
-                    'fa-laptop','fa-glass-cheers','fa-clipboard-list','fa-calendar-alt','fa-flag','fa-shower',
-                    'fa-paw','fa-socks','fa-umbrella','fa-mountain','fa-bed','fa-balance-scale'
-                ];
-            @endphp
             @foreach($icons as $icon)
                 <label class="cursor-pointer">
                     <input type="radio" name="icon" value="{{ $icon }}" class="hidden">
                     <div class="p-2 border rounded text-center hover:bg-gray-100 icon-option">
                         <i class="fas {{ $icon }}"></i>
                     </div>
+                </label>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="block mb-2">カラーを選択</label>
+        <div class="grid grid-cols-6 sm:grid-cols-9 md:grid-cols-12 gap-2 max-h-40 overflow-y-auto">
+            @foreach($pastelColors as $color)
+                <label class="cursor-pointer w-full">
+                    <input type="radio" name="color" value="{{ $color }}" class="hidden">
+                    <div class="h-10 rounded border hover:opacity-75 color-option" style="background-color: {{ $color }};"></div>
                 </label>
             @endforeach
         </div>
@@ -81,9 +77,15 @@
         const iconOptions = document.querySelectorAll('input[name="icon"]');
         iconOptions.forEach(radio => {
             radio.addEventListener("change", () => {
-                document.querySelectorAll(".icon-option").forEach(div => {
-                    div.classList.remove("ring", "ring-blue-500");
-                });
+                document.querySelectorAll(".icon-option").forEach(div => div.classList.remove("ring", "ring-blue-500"));
+                radio.parentElement.querySelector("div").classList.add("ring", "ring-blue-500");
+            });
+        });
+
+        const colorOptions = document.querySelectorAll('input[name="color"]');
+        colorOptions.forEach(radio => {
+            radio.addEventListener("change", () => {
+                document.querySelectorAll(".color-option").forEach(div => div.classList.remove("ring", "ring-blue-500"));
                 radio.parentElement.querySelector("div").classList.add("ring", "ring-blue-500");
             });
         });

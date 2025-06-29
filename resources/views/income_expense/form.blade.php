@@ -61,7 +61,6 @@
             <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-3">
                 @php
                     $userId = auth()->id();
-
                     $categories = \App\Models\UserCategory::where('is_deleted', false)
                         ->where('user_id', $userId)
                         ->orderBy('sort_order')
@@ -70,8 +69,9 @@
 
                 @foreach($categories as $cat)
                     <button type="button"
-                        class="category-btn flex flex-col items-center justify-center p-4 border border-gray-400 rounded hover:bg-gray-100 text-sm text-gray-700 {{ old('category') === $cat->name ? 'bg-gray-200' : '' }}"
-                        data-category="{{ $cat->name }}">
+                        class="category-btn flex flex-col items-center justify-center p-4 border rounded text-sm text-gray-700 {{ old('category') === $cat->name ? 'ring-2 ring-blue-500' : '' }}"
+                        data-category="{{ $cat->name }}"
+                        style="background-color: {{ $cat->color ?? '#f4f4f4' }}">
                         <i class="fas {{ $cat->icon }} text-xl mb-1"></i>
                         <span>{{ $cat->name }}</span>
                     </button>
@@ -103,6 +103,7 @@
         </div>
     </div>
 </form>
+
 <dialog id="addCategoryModal" class="rounded p-4 border w-96 bg-white shadow-md">
     <form method="POST" action="{{ route('categories.store') }}">
         @csrf
@@ -121,6 +122,13 @@
                     'fa-laptop','fa-glass-cheers','fa-clipboard-list','fa-calendar-alt','fa-flag','fa-shower',
                     'fa-paw','fa-socks','fa-umbrella','fa-mountain','fa-bed','fa-balance-scale'
                 ];
+                $pastelColors = [
+                    '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#E6E6FA', '#FFFACD', '#D8BFD8', '#E0FFFF', '#F0FFF0',
+                    '#FFDAB9', '#FFE4E1', '#E6E6FA', '#F5DEB3', '#FFF0F5', '#FFCCFF', '#CCFFCC', '#FFFFCC', '#CCCCFF', '#CCFFFF',
+                    '#FFCCE5', '#CCFFEB', '#E0FFFF', '#FAFAD2', '#F0F8FF', '#F5F5DC', '#F8F8FF', '#FFEFD5', '#F0E68C', '#FFDEAD',
+                    '#E9967A', '#87CEFA', '#AFEEEE', '#DDA0DD', '#F5FFFA', '#FFE4B5', '#FAF0E6', '#FFF5EE', '#E0EEE0', '#FFF8DC',
+                    '#EEE8AA', '#EED5B7', '#B0E0E6', '#D3FFCE', '#F4A460', '#FFB6C1', '#FFA07A', '#20B2AA', '#87CEEB', '#FFC0CB'
+                ];
             @endphp
             @foreach($icons as $icon)
                 <label class="cursor-pointer">
@@ -128,6 +136,16 @@
                     <div class="p-2 border rounded text-center hover:bg-gray-100 icon-option">
                         <i class="fas {{ $icon }}"></i>
                     </div>
+                </label>
+            @endforeach
+        </div>
+
+        <label class="block mb-2">カラーを選択</label>
+        <div class="grid grid-cols-6 gap-2 mb-4" id="colorPalette">
+            @foreach($pastelColors as $color)
+                <label class="cursor-pointer color-label">
+                    <input type="radio" name="color" value="{{ $color }}" class="hidden" {{ old('color') === $color ? 'checked' : '' }}>
+                    <div class="w-10 h-6 rounded border-2 border-gray-300 color-box transition-all duration-200 hover:scale-110 hover:ring-2 hover:ring-offset-2 hover:ring-blue-300" style="background-color: {{ $color }}"></div>
                 </label>
             @endforeach
         </div>
@@ -169,15 +187,14 @@
 
         incomeBtn.addEventListener("click", () => setMode("income"));
         expenseBtn.addEventListener("click", () => setMode("expense"));
-
         setMode("{{ old('type', 'expense') }}");
 
         const categoryButtons = document.querySelectorAll(".category-btn");
         const selectedCategoryInput = document.getElementById("selectedCategory");
         categoryButtons.forEach(btn => {
             btn.addEventListener("click", () => {
-                categoryButtons.forEach(b => b.classList.remove("bg-gray-200"));
-                btn.classList.add("bg-gray-200");
+                categoryButtons.forEach(b => b.classList.remove("ring-2", "ring-blue-500"));
+                btn.classList.add("ring-2", "ring-blue-500");
                 selectedCategoryInput.value = btn.dataset.category;
             });
         });
@@ -193,9 +210,33 @@
         iconOptions.forEach(radio => {
             radio.addEventListener("change", () => {
                 document.querySelectorAll(".icon-option").forEach(div => {
-                    div.classList.remove("selected");
+                    div.classList.remove("ring", "ring-blue-500");
                 });
-                radio.parentElement.querySelector("div").classList.add("selected");
+                radio.parentElement.querySelector("div").classList.add("ring", "ring-blue-500");
+            });
+        });
+
+        const colorLabels = document.querySelectorAll('#colorPalette .color-label');
+
+    function updateColorSelection() {
+        colorLabels.forEach(label => {
+            label.querySelector('.color-box').classList.remove('ring', 'ring-offset-2', 'ring-blue-500');
+        });
+
+        const selected = document.querySelector('input[name="color"]:checked');
+            if (selected) {
+                const box = selected.closest('.color-label').querySelector('.color-box');
+                box.classList.add('ring', 'ring-offset-2', 'ring-blue-500');
+            }
+        }
+
+        // 初期状態反映
+        updateColorSelection();
+
+        // 選択時反映
+        colorLabels.forEach(label => {
+            label.addEventListener('click', () => {
+                setTimeout(updateColorSelection, 0); // ラジオボタンが切り替わるのを待つ
             });
         });
     });
